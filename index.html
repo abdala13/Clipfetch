@@ -18,9 +18,14 @@
         .dark { background-color: #0f172a; color: #f8fafc; }
         .glass { backdrop-filter: blur(12px); background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); }
         .light .glass { background: rgba(0, 0, 0, 0.01); border: 1px solid rgba(0, 0, 0, 0.05); }
-        iframe { background: white; border-radius: 12px; width: 100%; height: 450px; border: none; }
+        iframe { background: white; border-radius: 12px; width: 100%; height: auto; min-height: 350px; border: none; }
         .msg-item { animation: slideIn 0.3s ease-out forwards; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* لتنسيق شريط التمرير داخل صندوق الوارد بشكل أنيق */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.3); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.6); }
     </style>
 </head>
 <body>
@@ -56,17 +61,17 @@
             <p id="t-sub" class="text-slate-400 mb-8 text-sm">احصل على رسائل التفعيل فوراً وبشكل مجهول تماماً.</p>
 
             <div class="flex flex-col md:flex-row gap-3 items-stretch max-w-2xl mx-auto">
-                <input id="emailInput" readonly type="text" value="جاري الإنشاء..." class="bg-slate-900/50 border-2 border-slate-700 rounded-2xl px-6 py-4 text-center font-mono text-lg flex-grow outline-none text-indigo-400 shadow-inner">
+                <input id="emailInput" readonly type="text" value="جاري التحميل..." class="bg-slate-900/50 border-2 border-slate-700 rounded-2xl px-6 py-4 text-center font-mono text-lg flex-grow outline-none text-indigo-400 shadow-inner">
                 <button onclick="copyEmail()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-2xl font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 active:scale-95">
                     <span class="material-symbols-rounded">content_copy</span> <span id="t-copy">نسخ</span>
                 </button>
             </div>
 
             <div class="flex justify-center gap-6 mt-8">
-                <button onclick="fetchMessages()" class="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-indigo-500 transition">
+                <button onclick="manualRefresh()" class="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-indigo-500 transition">
                     <span class="material-symbols-rounded text-lg">sync</span> <span id="t-refresh">تحديث يدوي</span>
                 </button>
-                <button onclick="createNewEmail()" class="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-rose-500 transition">
+                <button onclick="changeEmail()" class="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-rose-500 transition">
                     <span class="material-symbols-rounded text-lg">edit_note</span> <span id="t-change">تغيير العنوان</span>
                 </button>
             </div>
@@ -84,12 +89,12 @@
             </div>
             
             <div class="relative min-h-[350px]">
-                <div id="emptyState" class="py-24 text-center opacity-20 absolute inset-0 z-0">
+                <div id="emptyState" class="py-24 text-center opacity-20">
                     <span class="material-symbols-rounded text-7xl mb-4">mail_lock</span>
                     <p id="t-empty" class="font-bold text-lg">بانتظار وصول رسائل...</p>
                 </div>
                 
-                <div id="inboxContainer" class="divide-y divide-slate-800/50 relative z-10">
+                <div id="inboxContainer" class="divide-y divide-slate-800/50">
                 </div>
             </div>
         </section>
@@ -106,26 +111,6 @@
         </div>
     </footer>
 
-    <div id="msgModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-slate-950/95 backdrop-blur-md" onclick="closeModal()"></div>
-        <div class="glass w-full max-w-3xl rounded-[40px] overflow-hidden relative z-10 border border-white/5 shadow-2xl">
-            <div class="p-5 border-b border-white/5 flex justify-between items-center bg-white/5">
-                <div class="flex gap-2">
-                    <button onclick="prevMsg()" class="size-10 flex items-center justify-center hover:bg-white/10 rounded-full transition text-indigo-400"><span class="material-symbols-rounded">arrow_forward_ios</span></button>
-                    <button onclick="nextMsg()" class="size-10 flex items-center justify-center hover:bg-white/10 rounded-full transition text-indigo-400"><span class="material-symbols-rounded">arrow_back_ios</span></button>
-                </div>
-                <div class="text-center overflow-hidden flex-grow px-4">
-                    <p id="modalFrom" class="text-[10px] text-indigo-400 font-black truncate"></p>
-                    <h4 id="modalSubject" class="text-sm font-bold truncate"></h4>
-                </div>
-                <button onclick="closeModal()" class="size-10 flex items-center justify-center bg-rose-500/10 text-rose-500 rounded-full hover:bg-rose-500 hover:text-white transition"><span class="material-symbols-rounded">close</span></button>
-            </div>
-            <div id="modalBody" class="p-2 bg-white">
-                <iframe id="msgIframe"></iframe>
-            </div>
-        </div>
-    </div>
-
     <div id="pageModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-6">
         <div class="absolute inset-0 bg-slate-950/90 backdrop-blur-sm" onclick="hidePage()"></div>
         <div class="glass w-full max-w-xl rounded-[30px] p-8 relative z-10 shadow-2xl max-h-[70vh] overflow-y-auto">
@@ -136,7 +121,8 @@
 
     <script>
         let messages = [];
-        let currentIdx = 0;
+        let fetchedMessagesContent = {}; // لحفظ محتوى الرسائل لتجنب إعادة تحميلها
+        let displayedMsgIds = []; // تمنع إعادة رسم الشاشة إذا لم تصل رسائل جديدة
         let token = '';
         let address = '';
         let lang = 'ar';
@@ -144,8 +130,8 @@
         const api = 'https://api.mail.tm';
 
         const dict = {
-            ar: { main: "بريدك المؤقت جاهز", sub: "احصل على رسائل التفعيل فوراً وبشكل مجهول تماماً.", copy: "نسخ", refresh: "تحديث يدوي", change: "تغيير العنوان", inbox: "صندوق الوارد", empty: "بانتظار وصول رسائل...", notify: "وصلت رسالة جديدة من: " },
-            en: { main: "Your Temp Mail is Ready", sub: "Get your activation emails instantly and completely anonymously.", copy: "Copy", refresh: "Manual Refresh", change: "Change Address", inbox: "Inbox", empty: "Waiting for messages...", notify: "New email received from: " }
+            ar: { main: "بريدك المؤقت جاهز", sub: "احصل على رسائل التفعيل فوراً وبشكل مجهول تماماً.", copy: "نسخ", refresh: "تحديث يدوي", change: "تغيير العنوان", inbox: "صندوق الوارد", empty: "بانتظار وصول رسائل...", notify: "وصلت رسالة جديدة من: ", error: "حدث خطأ أثناء تحميل الرسالة.", loading: "جاري تحميل الرسالة..." },
+            en: { main: "Your Temp Mail is Ready", sub: "Get your activation emails instantly and completely anonymously.", copy: "Copy", refresh: "Manual Refresh", change: "Change Address", inbox: "Inbox", empty: "Waiting for messages...", notify: "New email received from: ", error: "Error loading message.", loading: "Loading message..." }
         };
 
         const pages = {
@@ -153,6 +139,28 @@
             privacy: `<h2>سياسة الخصوصية</h2><p>نحن لا نراقب رسائلك ولا نخزنها. بمجرد تغيير بريدك أو إغلاق الصفحة بوقت طويل، يتم مسح كافة البيانات من الخادم التابع لخدمة Mail.tm.</p>`,
             terms: `<h2>شروط الخدمة</h2><p>استخدم هذا البريد للتسجيلات المؤقتة فقط. لا ننصح باستخدامه لحساباتك البنكية أو الحساسة، لأن البريد مؤقت وقد تفقد الوصول إليه مستقبلاً.</p>`
         };
+
+        async function initApp() {
+            const savedAddress = localStorage.getItem('vemail_address');
+            const savedToken = localStorage.getItem('vemail_token');
+            
+            if (savedAddress && savedToken) {
+                // استرجاع البريد المحفوظ
+                address = savedAddress;
+                token = savedToken;
+                document.getElementById('emailInput').value = address;
+                await fetchMessages();
+            } else {
+                // إنشاء بريد جديد إذا لم يوجد
+                await createNewEmail();
+            }
+            
+            // طلب إذن الإشعارات
+            if (Notification.permission !== "denied") Notification.requestPermission();
+            
+            // تحديث تلقائي كل 5 ثواني
+            setInterval(fetchMessages, 5000);
+        }
 
         async function createNewEmail() {
             try {
@@ -177,14 +185,36 @@
                 const tokenData = await tokenRes.json();
                 token = tokenData.token;
                 
+                // حفظ البيانات في المتصفح
+                localStorage.setItem('vemail_address', address);
+                localStorage.setItem('vemail_token', token);
+                
                 document.getElementById('emailInput').value = address;
                 
-                // إعادة تهيئة المتغيرات للبريد الجديد
-                messages = [];
-                lastMsgId = null;
-                updateUI();
-                fetchMessages();
+                resetData();
+                await fetchMessages();
             } catch (e) { console.error("Error creating email:", e); }
+        }
+
+        function changeEmail() {
+            localStorage.removeItem('vemail_address');
+            localStorage.removeItem('vemail_token');
+            document.getElementById('emailInput').value = "جاري التغيير...";
+            createNewEmail();
+        }
+
+        function resetData() {
+            messages = [];
+            lastMsgId = null;
+            displayedMsgIds = [];
+            fetchedMessagesContent = {};
+            document.getElementById('inboxContainer').innerHTML = '';
+            document.getElementById('msgCount').innerText = '0';
+            document.getElementById('emptyState').style.display = 'block';
+        }
+
+        async function manualRefresh() {
+            await fetchMessages();
         }
 
         async function fetchMessages() {
@@ -195,12 +225,18 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 
-                if (!res.ok) throw new Error('Network response was not ok');
+                // إذا انتهت صلاحية الجلسة أو البريد غير موجود
+                if (res.status === 401 || res.status === 403) {
+                    changeEmail();
+                    return;
+                }
+                
+                if (!res.ok) throw new Error('Network error');
                 
                 const data = await res.json();
                 messages = data['hydra:member'] || [];
                 
-                // Notification Logic
+                // التحقق من وصول رسالة جديدة للإشعار
                 if (messages.length > 0) {
                     if (messages[0].id !== lastMsgId) {
                         if (lastMsgId !== null) {
@@ -209,7 +245,15 @@
                         lastMsgId = messages[0].id;
                     }
                 }
-                updateUI();
+
+                // نتحقق إذا تغير عدد أو معرّفات الرسائل لنقوم بإعادة رسم الصندوق
+                // هذا يمنع إغلاق الرسائل المفتوحة كل 5 ثواني
+                const currentMsgIds = messages.map(m => m.id).join(',');
+                if (currentMsgIds !== displayedMsgIds.join(',')) {
+                    displayedMsgIds = messages.map(m => m.id);
+                    updateUI();
+                }
+
             } catch (e) { console.error("Error fetching messages:", e); }
             document.getElementById('loading').classList.add('hidden');
         }
@@ -218,7 +262,6 @@
             const container = document.getElementById('inboxContainer');
             const empty = document.getElementById('emptyState');
             
-            // التأكد من وجود العناصر قبل محاولة تعديلها لتفادي الأخطاء
             if (!container || !empty) return;
 
             document.getElementById('msgCount').innerText = messages.length;
@@ -230,52 +273,79 @@
             }
             
             empty.style.display = 'none';
-            // عرض كافة الرسائل الواردة بترتيبها الصحيح مع خلفية تميزها
+            
+            // رسم جميع الرسائل بطريقة المنسدلة (Accordion)
             container.innerHTML = messages.map((m, i) => `
-                <div onclick="openMsg(${i})" class="msg-item p-5 hover:bg-indigo-500/10 bg-slate-900/40 cursor-pointer flex justify-between items-center transition group border-b border-slate-800/30">
-                    <div class="min-w-0 flex-grow">
-                        <div class="font-black text-indigo-500 text-[10px] uppercase mb-1 tracking-wider">${m.from.address}</div>
-                        <div class="text-sm font-bold truncate group-hover:text-indigo-400 transition">${m.subject || '(بدون عنوان)'}</div>
+                <div class="msg-item group bg-slate-900/40">
+                    <div onclick="toggleMsg(${i}, '${m.id}')" class="p-5 hover:bg-indigo-500/10 cursor-pointer flex justify-between items-center transition">
+                        <div class="min-w-0 flex-grow pr-2">
+                            <div class="font-black text-indigo-500 text-[11px] uppercase mb-1 tracking-wider" dir="ltr" style="text-align: ${lang==='ar'?'right':'left'};">${m.from.address}</div>
+                            <div class="text-sm font-bold truncate group-hover:text-indigo-400 transition text-slate-200">${m.subject || '(بدون عنوان)'}</div>
+                        </div>
+                        <span id="icon-${i}" class="material-symbols-rounded text-slate-500 transition-transform duration-300">expand_more</span>
                     </div>
-                    <span class="material-symbols-rounded text-slate-600 group-hover:-translate-x-1 transition">chevron_left</span>
+                    
+                    <div id="bodyContainer-${i}" class="hidden p-4 bg-slate-950/30 border-t border-slate-800/30 shadow-inner">
+                        <div id="loading-${i}" class="text-center text-xs text-indigo-400 font-bold py-6 hidden animate-pulse">${dict[lang].loading}</div>
+                        <iframe id="iframe-${i}" class="hidden w-full bg-white rounded-xl shadow-lg border border-slate-200/10"></iframe>
+                    </div>
                 </div>
             `).join('');
         }
 
-        async function openMsg(i) {
-            currentIdx = i;
-            const msg = messages[i];
-            const iframe = document.getElementById('msgIframe');
-            
-            // تصفير المحتوى لعدم عرض محتوى قديم أثناء التحميل
-            iframe.srcdoc = `<html><body><div style="padding:20px; text-align:center; font-family:sans-serif; color:#888;">جاري تحميل الرسالة...</div></body></html>`;
-            document.getElementById('msgModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+        async function toggleMsg(index, msgId) {
+            const bodyContainer = document.getElementById(`bodyContainer-${index}`);
+            const icon = document.getElementById(`icon-${index}`);
+            const iframe = document.getElementById(`iframe-${index}`);
+            const loader = document.getElementById(`loading-${index}`);
 
-            try {
-                const res = await fetch(`${api}/messages/${msg.id}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await res.json();
-                
-                document.getElementById('modalFrom').innerText = data.from.address;
-                document.getElementById('modalSubject').innerText = data.subject || '(بدون عنوان)';
-                
-                // معالجة محتوى HTML للرسالة بشكل آمن
-                let content = '';
-                if (data.html) {
-                    content = Array.isArray(data.html) ? data.html.join('') : data.html;
-                } else if (data.text) {
-                    content = `<div style="padding:40px; font-family:sans-serif; line-height:1.6; white-space:pre-wrap;">${data.text}</div>`;
+            // إذا كانت الرسالة مغلقة (مخفية)، نقوم بفتحها
+            if (bodyContainer.classList.contains('hidden')) {
+                bodyContainer.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+
+                // إذا لم يتم تحميل محتوى هذه الرسالة من قبل
+                if (!fetchedMessagesContent[msgId]) {
+                    loader.classList.remove('hidden');
+                    iframe.classList.add('hidden');
+                    
+                    try {
+                        const res = await fetch(`${api}/messages/${msgId}`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        const data = await res.json();
+                        fetchedMessagesContent[msgId] = data; // حفظ المحتوى لتجنب إعادة التحميل
+                        renderIframeContent(iframe, data);
+                    } catch(e) {
+                        iframe.srcdoc = `<html><body><div style="padding:20px; text-align:center; color:red; font-family:sans-serif;">${dict[lang].error}</div></body></html>`;
+                    }
+                    
+                    loader.classList.add('hidden');
+                    iframe.classList.remove('hidden');
                 } else {
-                    content = `<div style="padding:40px; text-align:center;">رسالة فارغة.</div>`;
+                    // المحتوى محمل مسبقا
+                    renderIframeContent(iframe, fetchedMessagesContent[msgId]);
+                    iframe.classList.remove('hidden');
                 }
-                
-                iframe.srcdoc = `<html><head><style>body{margin:0; font-family:sans-serif; color:#333;}</style></head><body>${content}</body></html>`;
-            } catch(e) {
-                console.error("Error opening message:", e);
-                iframe.srcdoc = `<html><body><div style="padding:20px; text-align:center; color:red;">حدث خطأ أثناء تحميل الرسالة.</div></body></html>`;
+            } else {
+                // إذا كانت مفتوحة، نقوم بإغلاقها
+                bodyContainer.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
             }
+        }
+
+        function renderIframeContent(iframe, data) {
+            let content = '';
+            if (data.html) {
+                content = Array.isArray(data.html) ? data.html.join('') : data.html;
+            } else if (data.text) {
+                content = `<div style="padding:40px; font-family:sans-serif; line-height:1.6; white-space:pre-wrap;">${data.text}</div>`;
+            } else {
+                content = `<div style="padding:40px; text-align:center; font-family:sans-serif;">رسالة فارغة.</div>`;
+            }
+            
+            // تأكد من ضبط عرض الآي فريم بشكل يمنع ظهوره صغيراً جداً
+            iframe.srcdoc = `<html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>body{margin:0; padding:15px; font-family:sans-serif; color:#222; background:#fff; overflow-x:hidden;}</style></head><body>${content}</body></html>`;
         }
 
         function sendNotification(sender) {
@@ -283,10 +353,6 @@
                 new Notification("Vemail", { body: dict[lang].notify + sender, icon: 'https://cdn-icons-png.flaticon.com/512/281/281769.png' });
             }
         }
-
-        function nextMsg() { if(currentIdx > 0) openMsg(currentIdx - 1); }
-        function prevMsg() { if(currentIdx < messages.length - 1) openMsg(currentIdx + 1); }
-        function closeModal() { document.getElementById('msgModal').classList.add('hidden'); document.body.style.overflow = 'auto'; }
 
         function showPage(p) { document.getElementById('pageContent').innerHTML = pages[p]; document.getElementById('pageModal').classList.remove('hidden'); }
         function hidePage() { document.getElementById('pageModal').classList.add('hidden'); }
@@ -318,13 +384,13 @@
             document.getElementById('t-change').innerText = t.change;
             document.getElementById('t-inbox').innerText = t.inbox;
             document.getElementById('t-empty').innerText = t.empty;
+            
+            // تحديث رسالة التحميل والخطأ في حال كانت هناك رسائل مفتوحة
+            updateUI();
         }
 
-        window.onload = () => {
-            createNewEmail();
-            setInterval(fetchMessages, 5000); // التحديث التلقائي كل 5 ثواني
-            if (Notification.permission !== "denied") Notification.requestPermission();
-        };
+        // بدء تشغيل التطبيق عند تحميل الصفحة
+        window.onload = initApp;
     </script>
 </body>
 </html>
