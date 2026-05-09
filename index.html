@@ -3,16 +3,21 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Vemail - بريد مؤقت ذكي</title>
+    
+    <title>Vemail - بريد مؤقت ذكي وسريع</title>
+    <meta name="description" content="احصل على بريد إلكتروني مؤقت بضغطة واحدة مع Vemail. حماية خصوصيتك ومنع الرسائل المزعجة.">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700;900&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+
     <style>
         body { font-family: 'Noto Sans Arabic', sans-serif; transition: all 0.3s ease; }
         .ad-space { background: rgba(99, 102, 241, 0.05); border: 1px dashed #6366f1; display: flex; align-items: center; justify-content: center; min-height: 90px; margin: 15px 0; border-radius: 12px; }
         .light { background-color: #f8fafc; color: #1e293b; }
         .dark { background-color: #0f172a; color: #f8fafc; }
         .glass { backdrop-filter: blur(12px); background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .light .glass { background: rgba(0, 0, 0, 0.01); border: 1px solid rgba(0, 0, 0, 0.05); }
         iframe { background: white; border-radius: 12px; width: 100%; height: 450px; border: none; }
         .msg-item { animation: slideIn 0.3s ease-out forwards; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -28,11 +33,13 @@
                 </div>
                 <h1 class="text-2xl font-black tracking-tighter uppercase">Ve<span class="text-indigo-500">mail</span></h1>
             </div>
-            <nav class="hidden md:flex gap-6 text-[10px] font-bold opacity-60 uppercase tracking-widest">
-                <button onclick="showPage('about')">من نحن</button>
-                <button onclick="showPage('privacy')">الخصوصية</button>
-                <button onclick="showPage('terms')">الشروط</button>
+            
+            <nav class="hidden md:flex gap-6 text-xs font-bold opacity-60 uppercase tracking-widest">
+                <button onclick="showPage('about')" class="hover:text-indigo-500 transition">من نحن</button>
+                <button onclick="showPage('privacy')" class="hover:text-indigo-500 transition">الخصوصية</button>
+                <button onclick="showPage('terms')" class="hover:text-indigo-500 transition">الشروط</button>
             </nav>
+
             <div class="flex items-center gap-2">
                 <button onclick="toggleTheme()" class="p-2 hover:bg-slate-700/50 rounded-full transition"><span class="material-symbols-rounded" id="themeIcon">light_mode</span></button>
                 <button onclick="toggleLang()" id="langBtn" class="px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-lg font-black text-xs">EN</button>
@@ -41,58 +48,77 @@
     </header>
 
     <main class="max-w-4xl mx-auto px-4 py-6">
-        <div class="ad-space"><span class="text-[10px] opacity-40">AdSense Header</span></div>
+        
+        <div class="ad-space"><span class="text-[10px] opacity-40 uppercase">AdSense Header - إعلان علوي</span></div>
 
         <section class="glass rounded-[35px] p-8 text-center shadow-2xl mb-8 border-indigo-500/10">
-            <h2 id="t-main" class="text-3xl font-black mb-2 leading-tight">بريدك المؤقت جاهز</h2>
-            <p id="t-sub" class="text-slate-400 mb-8 text-sm">استقبل رسائل التفعيل فوراً وبشكل مجهول.</p>
+            <h2 id="t-main" class="text-3xl font-black mb-2">بريدك المؤقت جاهز</h2>
+            <p id="t-sub" class="text-slate-400 mb-8 text-sm">احصل على رسائل التفعيل فوراً وبشكل مجهول تماماً.</p>
+
             <div class="flex flex-col md:flex-row gap-3 items-stretch max-w-2xl mx-auto">
-                <input id="emailInput" readonly type="text" value="جاري الإنشاء..." class="bg-slate-900/50 border-2 border-slate-700 rounded-2xl px-6 py-4 text-center font-mono text-lg flex-grow outline-none text-indigo-400">
-                <button onclick="copyEmail()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-2xl font-bold transition flex items-center justify-center gap-2 shadow-lg active:scale-95">
+                <input id="emailInput" readonly type="text" value="جاري الإنشاء..." class="bg-slate-900/50 border-2 border-slate-700 rounded-2xl px-6 py-4 text-center font-mono text-lg flex-grow outline-none text-indigo-400 shadow-inner">
+                <button onclick="copyEmail()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-2xl font-bold transition flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 active:scale-95">
                     <span class="material-symbols-rounded">content_copy</span> <span id="t-copy">نسخ</span>
                 </button>
             </div>
+
             <div class="flex justify-center gap-6 mt-8">
-                <button onclick="fetchMessages()" class="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-indigo-500"><span class="material-symbols-rounded text-lg">sync</span> <span id="t-refresh">تحديث يدوي</span></button>
-                <button onclick="createNewEmail()" class="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-rose-500"><span class="material-symbols-rounded text-lg">edit_note</span> <span id="t-change">تغيير العنوان</span></button>
+                <button onclick="fetchMessages()" class="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-indigo-500 transition">
+                    <span class="material-symbols-rounded text-lg">sync</span> <span id="t-refresh">تحديث يدوي</span>
+                </button>
+                <button onclick="createNewEmail()" class="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-rose-500 transition">
+                    <span class="material-symbols-rounded text-lg">edit_note</span> <span id="t-change">تغيير العنوان</span>
+                </button>
             </div>
         </section>
+
+        <div class="ad-space"><span class="text-[10px] opacity-40 uppercase">AdSense Feed - إعلان وسط الصندوق</span></div>
 
         <section class="glass rounded-[35px] overflow-hidden shadow-xl">
             <div class="p-6 border-b border-slate-700/50 flex justify-between items-center bg-indigo-500/5">
                 <h3 class="font-black flex items-center gap-2"><span class="material-symbols-rounded text-indigo-500">inbox</span> <span id="t-inbox">صندوق الوارد</span></h3>
-                <span id="msgCount" class="bg-indigo-600 text-white text-xs px-3 py-1 rounded-full font-black">0</span>
+                <div class="flex items-center gap-3">
+                    <span id="loading" class="hidden animate-spin size-4 border-2 border-indigo-500 border-t-transparent rounded-full"></span>
+                    <span id="msgCount" class="bg-indigo-600 text-white text-xs px-3 py-1 rounded-full font-black shadow-md">0</span>
+                </div>
             </div>
-            <div id="inboxContainer" class="divide-y divide-slate-800/50 min-h-[300px]">
-                <div id="emptyState" class="py-24 text-center opacity-20">
+            
+            <div class="relative min-h-[350px]">
+                <div id="emptyState" class="py-24 text-center opacity-20 absolute inset-0 z-0">
                     <span class="material-symbols-rounded text-7xl mb-4">mail_lock</span>
-                    <p id="t-empty" class="font-bold">بانتظار وصول رسائل...</p>
+                    <p id="t-empty" class="font-bold text-lg">بانتظار وصول رسائل...</p>
+                </div>
+                
+                <div id="inboxContainer" class="divide-y divide-slate-800/50 relative z-10">
                 </div>
             </div>
         </section>
-
-        <div class="ad-space"><span class="text-[10px] opacity-40">AdSense Footer</span></div>
     </main>
 
-    <footer class="max-w-6xl mx-auto px-4 py-10 text-center">
-        <p class="text-slate-500 text-[10px] uppercase tracking-widest mb-2">Vemail - Smart Disposable Email</p>
+    <footer class="max-w-6xl mx-auto px-4 py-10 border-t border-slate-800 text-center">
+        <p class="text-slate-500 text-[10px] uppercase tracking-widest mb-2">Vemail - Smart Disposable Email Service</p>
         <p class="font-black text-slate-300">تم التطوير Abdala hanouna لعام 2026</p>
+        
+        <div class="flex justify-center gap-6 mt-6 opacity-40 text-[10px] font-bold uppercase">
+            <button onclick="showPage('privacy')">الخصوصية</button>
+            <button onclick="showPage('terms')">الشروط</button>
+            <button onclick="showPage('about')">حولنا</button>
+        </div>
     </footer>
 
-    <!-- Carousel Modal -->
     <div id="msgModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-slate-950/95 backdrop-blur-md" onclick="closeModal()"></div>
         <div class="glass w-full max-w-3xl rounded-[40px] overflow-hidden relative z-10 border border-white/5 shadow-2xl">
             <div class="p-5 border-b border-white/5 flex justify-between items-center bg-white/5">
                 <div class="flex gap-2">
-                    <button onclick="nextMsg()" class="size-10 flex items-center justify-center hover:bg-white/10 rounded-full transition text-indigo-400"><span class="material-symbols-rounded">arrow_forward_ios</span></button>
-                    <button onclick="prevMsg()" class="size-10 flex items-center justify-center hover:bg-white/10 rounded-full transition text-indigo-400"><span class="material-symbols-rounded">arrow_back_ios</span></button>
+                    <button onclick="prevMsg()" class="size-10 flex items-center justify-center hover:bg-white/10 rounded-full transition text-indigo-400"><span class="material-symbols-rounded">arrow_forward_ios</span></button>
+                    <button onclick="nextMsg()" class="size-10 flex items-center justify-center hover:bg-white/10 rounded-full transition text-indigo-400"><span class="material-symbols-rounded">arrow_back_ios</span></button>
                 </div>
                 <div class="text-center overflow-hidden flex-grow px-4">
                     <p id="modalFrom" class="text-[10px] text-indigo-400 font-black truncate"></p>
                     <h4 id="modalSubject" class="text-sm font-bold truncate"></h4>
                 </div>
-                <button onclick="closeModal()" class="size-10 flex items-center justify-center bg-rose-500/10 text-rose-500 rounded-full hover:bg-rose-500 transition"><span class="material-symbols-rounded">close</span></button>
+                <button onclick="closeModal()" class="size-10 flex items-center justify-center bg-rose-500/10 text-rose-500 rounded-full hover:bg-rose-500 hover:text-white transition"><span class="material-symbols-rounded">close</span></button>
             </div>
             <div id="modalBody" class="p-2 bg-white">
                 <iframe id="msgIframe"></iframe>
@@ -100,12 +126,11 @@
         </div>
     </div>
 
-    <!-- Info Modals -->
     <div id="pageModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-6">
-        <div class="absolute inset-0 bg-slate-950/90" onclick="hidePage()"></div>
+        <div class="absolute inset-0 bg-slate-950/90 backdrop-blur-sm" onclick="hidePage()"></div>
         <div class="glass w-full max-w-xl rounded-[30px] p-8 relative z-10 shadow-2xl max-h-[70vh] overflow-y-auto">
-            <div id="pageContent" class="prose prose-slate dark:prose-invert text-sm"></div>
-            <button onclick="hidePage()" class="mt-8 w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold">إغلاق</button>
+            <div id="pageContent" class="prose prose-slate dark:prose-invert text-sm leading-relaxed"></div>
+            <button onclick="hidePage()" class="mt-8 w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-600/20">فهمت ذلك</button>
         </div>
     </div>
 
@@ -119,14 +144,14 @@
         const api = 'https://api.mail.tm';
 
         const dict = {
-            ar: { main: "بريدك المؤقت جاهز", sub: "استقبل رسائل التفعيل فوراً وبشكل مجهول.", copy: "نسخ", refresh: "تحديث يدوي", change: "تغيير العنوان", inbox: "صندوق الوارد", empty: "بانتظار وصول رسائل...", notify: "رسالة جديدة من: " },
-            en: { main: "Your Temp Mail is Ready", sub: "Get activation emails instantly and anonymously.", copy: "Copy", refresh: "Manual Refresh", change: "Change Address", inbox: "Inbox", empty: "Waiting for messages...", notify: "New email from: " }
+            ar: { main: "بريدك المؤقت جاهز", sub: "احصل على رسائل التفعيل فوراً وبشكل مجهول تماماً.", copy: "نسخ", refresh: "تحديث يدوي", change: "تغيير العنوان", inbox: "صندوق الوارد", empty: "بانتظار وصول رسائل...", notify: "وصلت رسالة جديدة من: " },
+            en: { main: "Your Temp Mail is Ready", sub: "Get your activation emails instantly and completely anonymously.", copy: "Copy", refresh: "Manual Refresh", change: "Change Address", inbox: "Inbox", empty: "Waiting for messages...", notify: "New email received from: " }
         };
 
         const pages = {
-            about: `<h2>حول Vemail</h2><p>خدمة بريد مؤقت لحمايتك من البريد المزعج.</p>`,
-            privacy: `<h2>سياسة الخصوصية</h2><p>لا يتم تخزين رسائلك بعد انتهاء جلستك.</p>`,
-            terms: `<h2>شروط الخدمة</h2><p>الخدمة للاستخدام الشخصي والمؤقت فقط.</p>`
+            about: `<h2>حول Vemail</h2><p>نحن نقدم خدمة بريد إلكتروني مجانية ومؤقتة تمنع البريد العشوائي. مع Vemail، يمكنك التسجيل في أي موقع دون الخوف على بريدك الشخصي من الاختراق أو الإزعاج.</p>`,
+            privacy: `<h2>سياسة الخصوصية</h2><p>نحن لا نراقب رسائلك ولا نخزنها. بمجرد تغيير بريدك أو إغلاق الصفحة بوقت طويل، يتم مسح كافة البيانات من الخادم التابع لخدمة Mail.tm.</p>`,
+            terms: `<h2>شروط الخدمة</h2><p>استخدم هذا البريد للتسجيلات المؤقتة فقط. لا ننصح باستخدامه لحساباتك البنكية أو الحساسة، لأن البريد مؤقت وقد تفقد الوصول إليه مستقبلاً.</p>`
         };
 
         async function createNewEmail() {
@@ -134,8 +159,8 @@
                 const domainRes = await fetch(`${api}/domains`);
                 const domains = await domainRes.json();
                 const domain = domains['hydra:member'][0].domain;
-                const user = `ve_${Math.random().toString(36).substring(7)}`;
-                const pass = 'pass123456';
+                const user = `vemail_${Math.random().toString(36).substring(7)}`;
+                const pass = 'vePass123';
                 address = `${user}@${domain}`;
 
                 await fetch(`${api}/accounts`, {
@@ -153,7 +178,10 @@
                 token = tokenData.token;
                 
                 document.getElementById('emailInput').value = address;
-                messages = []; // Reset messages for new email
+                
+                // إعادة تهيئة المتغيرات للبريد الجديد
+                messages = [];
+                lastMsgId = null;
                 updateUI();
                 fetchMessages();
             } catch (e) { console.error("Error creating email:", e); }
@@ -161,72 +189,98 @@
 
         async function fetchMessages() {
             if(!token) return;
+            document.getElementById('loading').classList.remove('hidden');
             try {
                 const res = await fetch(`${api}/messages`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
+                
+                if (!res.ok) throw new Error('Network response was not ok');
+                
                 const data = await res.json();
-                const fetchedMessages = data['hydra:member'] || [];
+                messages = data['hydra:member'] || [];
                 
-                // Check for new messages to notify
-                if (fetchedMessages.length > 0 && fetchedMessages[0].id !== lastMsgId) {
-                    if (lastMsgId !== null) sendNotification(fetchedMessages[0].from.address);
-                    lastMsgId = fetchedMessages[0].id;
+                // Notification Logic
+                if (messages.length > 0) {
+                    if (messages[0].id !== lastMsgId) {
+                        if (lastMsgId !== null) {
+                            sendNotification(messages[0].from.address);
+                        }
+                        lastMsgId = messages[0].id;
+                    }
                 }
-                
-                messages = fetchedMessages;
                 updateUI();
             } catch (e) { console.error("Error fetching messages:", e); }
+            document.getElementById('loading').classList.add('hidden');
         }
 
         function updateUI() {
             const container = document.getElementById('inboxContainer');
             const empty = document.getElementById('emptyState');
-            const countLabel = document.getElementById('msgCount');
             
-            countLabel.innerText = messages.length;
+            // التأكد من وجود العناصر قبل محاولة تعديلها لتفادي الأخطاء
+            if (!container || !empty) return;
+
+            document.getElementById('msgCount').innerText = messages.length;
 
             if (messages.length === 0) {
                 empty.style.display = 'block';
                 container.innerHTML = '';
-            } else {
-                empty.style.display = 'none';
-                container.innerHTML = messages.map((m, i) => `
-                    <div onclick="openMsg(${i})" class="msg-item p-5 hover:bg-indigo-500/5 cursor-pointer flex justify-between items-center border-b border-slate-800/30 group">
-                        <div class="min-w-0 flex-grow">
-                            <div class="font-black text-indigo-500 text-[10px] uppercase tracking-wider mb-1">${m.from.address}</div>
-                            <div class="text-sm font-bold truncate group-hover:text-indigo-400 transition">${m.subject || '(بدون موضوع)'}</div>
-                        </div>
-                        <span class="material-symbols-rounded text-slate-600 transition group-hover:translate-x-[-5px]">chevron_left</span>
-                    </div>
-                `).join('');
+                return;
             }
+            
+            empty.style.display = 'none';
+            // عرض كافة الرسائل الواردة بترتيبها الصحيح مع خلفية تميزها
+            container.innerHTML = messages.map((m, i) => `
+                <div onclick="openMsg(${i})" class="msg-item p-5 hover:bg-indigo-500/10 bg-slate-900/40 cursor-pointer flex justify-between items-center transition group border-b border-slate-800/30">
+                    <div class="min-w-0 flex-grow">
+                        <div class="font-black text-indigo-500 text-[10px] uppercase mb-1 tracking-wider">${m.from.address}</div>
+                        <div class="text-sm font-bold truncate group-hover:text-indigo-400 transition">${m.subject || '(بدون عنوان)'}</div>
+                    </div>
+                    <span class="material-symbols-rounded text-slate-600 group-hover:-translate-x-1 transition">chevron_left</span>
+                </div>
+            `).join('');
         }
 
         async function openMsg(i) {
             currentIdx = i;
-            const msgId = messages[i].id;
+            const msg = messages[i];
+            const iframe = document.getElementById('msgIframe');
+            
+            // تصفير المحتوى لعدم عرض محتوى قديم أثناء التحميل
+            iframe.srcdoc = `<html><body><div style="padding:20px; text-align:center; font-family:sans-serif; color:#888;">جاري تحميل الرسالة...</div></body></html>`;
+            document.getElementById('msgModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
             try {
-                const res = await fetch(`${api}/messages/${msgId}`, {
+                const res = await fetch(`${api}/messages/${msg.id}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await res.json();
                 
                 document.getElementById('modalFrom').innerText = data.from.address;
-                document.getElementById('modalSubject').innerText = data.subject || '(بدون موضوع)';
+                document.getElementById('modalSubject').innerText = data.subject || '(بدون عنوان)';
                 
-                const iframe = document.getElementById('msgIframe');
-                const htmlContent = data.html ? data.html.join('') : `<div style="padding:20px; font-family:sans-serif;">${data.text}</div>`;
-                iframe.srcdoc = `<!DOCTYPE html><html><head><style>body{margin:0; font-family:sans-serif;}</style></head><body>${htmlContent}</body></html>`;
+                // معالجة محتوى HTML للرسالة بشكل آمن
+                let content = '';
+                if (data.html) {
+                    content = Array.isArray(data.html) ? data.html.join('') : data.html;
+                } else if (data.text) {
+                    content = `<div style="padding:40px; font-family:sans-serif; line-height:1.6; white-space:pre-wrap;">${data.text}</div>`;
+                } else {
+                    content = `<div style="padding:40px; text-align:center;">رسالة فارغة.</div>`;
+                }
                 
-                document.getElementById('msgModal').classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            } catch (e) { console.error("Error opening message:", e); }
+                iframe.srcdoc = `<html><head><style>body{margin:0; font-family:sans-serif; color:#333;}</style></head><body>${content}</body></html>`;
+            } catch(e) {
+                console.error("Error opening message:", e);
+                iframe.srcdoc = `<html><body><div style="padding:20px; text-align:center; color:red;">حدث خطأ أثناء تحميل الرسالة.</div></body></html>`;
+            }
         }
 
         function sendNotification(sender) {
             if (Notification.permission === "granted") {
-                new Notification("Vemail", { body: dict[lang].notify + sender });
+                new Notification("Vemail", { body: dict[lang].notify + sender, icon: 'https://cdn-icons-png.flaticon.com/512/281/281769.png' });
             }
         }
 
@@ -239,32 +293,36 @@
 
         function copyEmail() {
             const el = document.getElementById('emailInput');
-            el.select();
-            document.execCommand('copy');
+            navigator.clipboard.writeText(el.value);
             const original = document.getElementById('t-copy').innerText;
-            document.getElementById('t-copy').innerText = "تم!";
+            document.getElementById('t-copy').innerText = "تم النسخ!";
             setTimeout(() => document.getElementById('t-copy').innerText = original, 2000);
         }
 
         function toggleTheme() {
             document.body.classList.toggle('light');
             document.body.classList.toggle('dark');
-            document.getElementById('themeIcon').innerText = document.body.classList.contains('light') ? 'dark_mode' : 'light_mode';
+            const isLight = document.body.classList.contains('light');
+            document.getElementById('themeIcon').innerText = isLight ? 'dark_mode' : 'light_mode';
         }
 
         function toggleLang() {
             lang = lang === 'ar' ? 'en' : 'ar';
             document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-            document.getElementById('langBtn').innerText = lang.toUpperCase();
+            document.getElementById('langBtn').innerText = lang === 'ar' ? 'EN' : 'AR';
             const t = dict[lang];
-            ["main", "sub", "copy", "refresh", "change", "inbox", "empty"].forEach(id => {
-                document.getElementById(`t-${id}`).innerText = t[id];
-            });
+            document.getElementById('t-main').innerText = t.main;
+            document.getElementById('t-sub').innerText = t.sub;
+            document.getElementById('t-copy').innerText = t.copy;
+            document.getElementById('t-refresh').innerText = t.refresh;
+            document.getElementById('t-change').innerText = t.change;
+            document.getElementById('t-inbox').innerText = t.inbox;
+            document.getElementById('t-empty').innerText = t.empty;
         }
 
         window.onload = () => {
             createNewEmail();
-            setInterval(fetchMessages, 5000);
+            setInterval(fetchMessages, 5000); // التحديث التلقائي كل 5 ثواني
             if (Notification.permission !== "denied") Notification.requestPermission();
         };
     </script>
